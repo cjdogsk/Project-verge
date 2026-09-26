@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="intro-loader">
+        <h1 class="name">WELCOME TO VERGE</h1>
+    </div> 
+    
+    <div class="container">
+        <header class="app-header">
+            <h1 class="heading">How can I help you?</h1>   
+            <h2 class="sub-heading">Ask me something</h2>
+            <button type="button" id="theme-toggle" class="material-symbols-rounded" style="position: absolute; top: 24px; right: 32px; font-size: 42px; cursor: pointer; background: none; border: none;">
+                toggle_on
+            </button>
+        </header>
+    </div>
+    
+    <div class="prompt-container">
+        <div class="prompt-wrapper">
+            <form action="#" class="prompt-form">
+                
+                <!-- Hidden file input -->
+                <input type="file" id="real-file" hidden="hidden" />
+                
+                <!-- Custom Publish Button -->
+                <button type="button" id="custom-publish-btn" class="icon-btn material-symbols-rounded">publish</button>
+                
+                <input type="text" placeholder="Ask Verge" class="prompt-input" required>
+                
+                <div class="right-actions">
+                    <div class="model-selector-container">
+                        <span class="model-selector" id="model-selector-btn">
+                            <span id="current-model">Gemini Flash</span> 
+                            <span class="material-symbols-rounded">expand_more</span>
+                        </span>
+                        
+                        <div class="dropdown-menu" id="model-dropdown">
+                            <div class="dropdown-item">Gemini Flash</div>
+                            <div class="dropdown-item">Kimi k3</div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="icon-btn material-symbols-rounded">mic</button>
+                    <button type="submit" class="icon-btn submit-btn material-symbols-rounded">arrow_upward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+
+        toggleBtn.addEventListener('click', function() {
+            const currentIcon = this.textContent.trim();
+
+            if (currentIcon === 'toggle_on') {
+                this.textContent = 'toggle_off';
+                document.body.classList.add('dark-mode');
+            } else {
+                this.textContent = 'toggle_on';
+                document.body.classList.remove('dark-mode');
+            }
+        });
+
+        window.addEventListener("load", () => {
+            let name = document.querySelector(".name");
+            let intro = document.querySelector(".intro-loader");
+
+            setTimeout(() => {
+                name.style.opacity = '1';
+                name.style.transform = 'translateY(0)';
+            }, 300);
+            
+            setTimeout(() => {
+                intro.style.top = '-100%';
+            }, 2000);
+        });
+
+        const modelBtn = document.getElementById('model-selector-btn');
+        const dropdownMenu = document.getElementById('model-dropdown');
+        const currentModelText = document.getElementById('current-model');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        modelBtn.addEventListener('click', function(event) {
+            dropdownMenu.classList.toggle('show');
+            event.stopPropagation(); 
+        });
+
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function() {
+                currentModelText.textContent = this.textContent; 
+                dropdownMenu.classList.remove('show');           
+            });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!modelBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        const realFileBtn = document.getElementById("real-file");
+        const customPublishBtn = document.getElementById("custom-publish-btn");
+
+        customPublishBtn.addEventListener("click", function() {
+            realFileBtn.click();
+        });
+        realFileBtn.addEventListener("change", function() {
+            if (realFileBtn.value) {
+                console.log("File selected:", realFileBtn.value);
+            }
+        });
+    </script>
+</body>
+</html>
