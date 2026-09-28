@@ -147,7 +147,22 @@ body.dark-mode .prompt-form {
   align-items: center;
   gap: 12px;
 }
+/* Hide the Gemini choices/dropdown */
+.model-selector, 
+.model-selector-container {
+  display: none !important;
+}
 
+/* Updated suggestion chips container */
+.suggestion-chips {
+  display: flex;
+  gap: 8px; /* Adjust distance BETWEEN the 3 options here */
+  margin-top: 16px; /* Adjust distance FROM the search bar here */
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
 .model-selector {
   font-size: 14px;
   display: flex;
@@ -165,36 +180,6 @@ body.dark-mode .prompt-form {
 .model-selector-container {
   position: relative; 
   display: inline-block;
-}
-
-.dropdown-menu {
-  display: none;      
-  position: absolute;
-  bottom: 120%;       
-  left: 0;
-  background-color: #2a2a2a; 
-  color: #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  min-width: 140px;
-  overflow: hidden;
-  z-index: 100;
-  text-align: left;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.dropdown-item {
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.dropdown-item:hover {
-  background-color: #444; 
 }
 
 .icon-btn {
@@ -336,3 +321,28 @@ body.dark-mode .message.user {
   align-self: flex-start;
   padding-left: 0;
 }
+
+.message.user { white-space: pre-wrap; }
+
+.message.assistant p { margin: 0 0 0.75em; }
+.message.assistant h1,
+.message.assistant h2,
+.message.assistant h3 { margin: 1em 0 0.4em; line-height: 1.3; }
+.message.assistant ul,
+.message.assistant ol { margin: 0 0 0.75em; padding-left: 1.4em; }
+
+.message.assistant code {
+  background: rgba(127, 127, 127, 0.15);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9em;
+}
+.message.assistant pre {
+  background: rgba(127, 127, 127, 0.15);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 0.75em;
+}
+.message.assistant pre code { background: none; padding: 0; }

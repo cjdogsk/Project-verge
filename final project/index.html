@@ -12,13 +12,12 @@
         <h1 class="name">WELCOME TO VERGE</h1>
     </div> 
     
-    <!-- App Wrapper for layout transition -->
     <div class="app-wrapper" id="app-wrapper">
         <button type="button" id="theme-toggle" class="material-symbols-rounded">
             toggle_on
         </button>
 
-        <!-- Main Content Area containing Welcome Banner & Chat History -->
+        <!-- Main Content & Chat History -->
         <div class="main-content-area">
             <div class="welcome-banner" id="welcome-banner">
                 <h1 class="heading">How can I help you?</h1>   
@@ -28,7 +27,7 @@
             <div class="chat-history" id="chat-history"></div>
         </div>
         
-        <!-- Prompt Container that slides from center to bottom -->
+        <!-- Prompt Container  -->
         <div class="prompt-container">
             <div class="prompt-wrapper">
                 <form action="#" class="prompt-form">
@@ -43,10 +42,6 @@
                                 <span id="current-model">Gemini Flash</span> 
                                 <span class="material-symbols-rounded">expand_more</span>
                             </span>
-                            
-                            <div class="dropdown-menu" id="model-dropdown">
-                                <div class="dropdown-item">Gemini Flash</div>
-                                <div class="dropdown-item">Kimi k3</div>
                             </div>
                         </div>
 
@@ -63,7 +58,8 @@
             </div>
         </div>
     </div>
-
-    <script src="script.js"></script>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+    <script src="script.js"></script> 
 </body>
 </html>

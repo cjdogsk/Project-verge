@@ -1,68 +1,49 @@
 const toggleBtn = document.getElementById('theme-toggle');
 if (toggleBtn) {
-    toggleBtn.addEventListener('click', function() {
-        const currentIcon = this.textContent.trim();
-        if (currentIcon === 'toggle_on') {
-            this.textContent = 'toggle_off';
-            document.body.classList.add('dark-mode');
-        } else {
-            this.textContent = 'toggle_on';
-            document.body.classList.remove('dark-mode');
-        }
-    });
+  let dark = false;
+  toggleBtn.addEventListener('click', () => {
+    dark = !dark;
+    toggleBtn.textContent = dark ? 'toggle_off' : 'toggle_on';
+    document.body.classList.toggle('dark-mode', dark);
+  });
 }
 
-window.addEventListener("load", () => {
-    let name = document.querySelector(".name");
-    let intro = document.querySelector(".intro-loader");
-
-    if (name) {
-        setTimeout(() => {
-            name.style.opacity = '1';
-            name.style.transform = 'translateY(0)';
-        }, 300);
-    }
-    if (intro) {
-        setTimeout(() => {
-            intro.style.top = '-100%';
-        }, 2000);
-    }
+// Intro loader 
+window.addEventListener('load', () => {
+  const name = document.querySelector('.name');
+  const intro = document.querySelector('.intro-loader');
+  if (name) {
+    setTimeout(() => {
+      name.style.opacity = '1';
+      name.style.transform = 'translateY(0)';
+    }, 300);
+  }
+  if (intro) setTimeout(() => (intro.style.top = '-100%'), 2000);
 });
 
-// Dropdown model selector logic
-const modelBtn = document.getElementById('model-selector-btn');
-const dropdownMenu = document.getElementById('model-dropdown');
-const currentModelText = document.getElementById('current-model');
-const dropdownItems = document.querySelectorAll('.dropdown-item');
+// Config 
+const API_KEY = ''; // paste Gemini API key here
+const DEFAULT_MODEL = 'gemini-3.8-flash'; // or 'gemini-flash-latest' to always track the newest Flash
+const MAX_HISTORY = 20;
+const SYSTEM_PROMPT = 'You are Verge, a helpful assistant.';
 
-if (modelBtn && dropdownMenu) {
-    modelBtn.addEventListener('click', function(event) {
-        dropdownMenu.classList.toggle('show');
-        event.stopPropagation(); 
-    });
+let selectedModel = DEFAULT_MODEL;
+let conversationHistory = [];
+let isBusy = false;
 
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', function() {
-            if (currentModelText) currentModelText.textContent = this.textContent; 
-            dropdownMenu.classList.remove('show');           
-        });
-    });
 
-    document.addEventListener('click', function(event) {
-        if (!modelBtn.contains(event.target)) {
-            dropdownMenu.classList.remove('show');
-        }
-    });
-}
-
-const realFileBtn = document.getElementById("real-file");
-const customPublishBtn = document.getElementById("custom-publish-btn");
-
+// File button 
+const realFileBtn = document.getElementById('real-file');
+const customPublishBtn = document.getElementById('custom-publish-btn');
 if (customPublishBtn && realFileBtn) {
-    customPublishBtn.addEventListener("click", () => realFileBtn.click());
+  customPublishBtn.addEventListener('click', () => realFileBtn.click());
+  realFileBtn.addEventListener('change', () => {
+    const file = realFileBtn.files[0];
+    if (file) console.log('Selected:', file.name); // TODO: handle upload
+  });
 }
 
-// Chat Functionality & Layout Transition
+// Chat
 const promptForm = document.querySelector('.prompt-form');
 const promptInput = document.querySelector('.prompt-input');
 const chatHistory = document.getElementById('chat-history');
@@ -70,88 +51,132 @@ const welcomeBanner = document.getElementById('welcome-banner');
 const appWrapper = document.getElementById('app-wrapper');
 const chips = document.querySelectorAll('.chip');
 
-const API_KEY = ''; 
-let conversationHistory = [];
+function appendMessage(text, sender) {
+  if (!chatHistory) return null;
+  const classes = sender.split(' ');
+  const div = document.createElement('div');
+  div.classList.add('message', ...classes);
+  div.id = 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+
+  const isReply = classes.includes('assistant') && !classes.includes('loading');
+  if (isReply && window.marked && window.DOMPurify) {
+    div.innerHTML = DOMPurify.sanitize(marked.parse(text, { breaks: true }));
+  } else {
+    div.textContent = text; // user messages and the loading text stay plain
+  }
+
+  chatHistory.appendChild(div);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+  return div.id;
+}
+function removeMessage(id) {
+  document.getElementById(id)?.remove();
+}
+
+// Pulls the reply text out of a Gemini response, or returns an error string.
+function parseGeminiResponse(data) {
+  const blockReason = data?.promptFeedback?.blockReason;
+  if (blockReason) return { error: `Your message was blocked (${blockReason}).` };
+
+  const candidate = data?.candidates?.[0];
+  const text = (candidate?.content?.parts || [])
+    .filter((p) => p.text && !p.thought)
+    .map((p) => p.text)
+    .join('');
+
+  if (text) return { text };
+  if (candidate?.finishReason && candidate.finishReason !== 'STOP') {
+    return { error: `The response was stopped (${candidate.finishReason}).` };
+  }
+  return { error: 'The API returned an empty response.' };
+}
+
+const FALLBACK_MODELS = ['gemini-3.1-flash-lite']; // try if the main model stays overloaded
+
+async function callGemini(payload) {
+  const models = [selectedModel, ...FALLBACK_MODELS];
+  let res;
+  for (const model of models) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': API_KEY },
+          body: payload
+        }
+      );
+      if (res.status !== 503) return res; // success or a different error: stop retrying
+      await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt)); // wait time
+    }
+  }
+  return res;
+}
 
 if (promptForm && promptInput) {
-    promptForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const userText = promptInput.value.trim();
-        if (!userText) return;
+  promptForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const userText = promptInput.value.trim();
+    if (!userText || isBusy) return;
 
-        // Force browser to register state change and animate smoothly
-        if (appWrapper) {
-            appWrapper.classList.add('chat-active');
-        }
-        if (welcomeBanner) {
-            welcomeBanner.style.display = 'none';
-        }
+    if (!API_KEY) {
+      appendMessage('Add your Gemini API key to API_KEY at the top of script.js.', 'assistant');
+      return;
+    }
 
-        // 2. Display User Message
-        appendMessage(userText, 'user');
-        promptInput.value = '';
+    isBusy = true;
+    appWrapper?.classList.add('chat-active');
+    if (welcomeBanner) welcomeBanner.style.display = 'none';
 
-        conversationHistory.push({
-            role: "user",
-            parts: [{ text: userText }]
-        });
+    appendMessage(userText, 'user');
+    promptInput.value = '';
+    conversationHistory.push({ role: 'user', parts: [{ text: userText }] });
 
-        // 3. Temporary Loading Message
-        const loadingId = appendMessage('Verge is thinking...', 'assistant loading');
+    const loadingId = appendMessage('Verge is thinking...', 'assistant loading');
 
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: conversationHistory })
-            });
+    try {
+      const response = await callGemini(
+  JSON.stringify({
+    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents: conversationHistory.slice(-MAX_HISTORY)
+  })
+);
 
-            const data = await response.json();
-            const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) loadingElement.remove();
+      const data = await response.json().catch(() => ({}));
+      removeMessage(loadingId);
 
-            if (data.candidates && data.candidates[0].content.parts[0].text) {
-                const aiReply = data.candidates[0].content.parts[0].text;
-                appendMessage(aiReply, 'assistant');
+      if (!response.ok) {
+        console.error('Gemini API error:', response.status, data);
+        appendMessage(`Error ${response.status}: ${data?.error?.message || 'Request failed.'}`, 'assistant');
+        conversationHistory.pop();
+        return;
+      }
 
-                conversationHistory.push({
-                    role: "model",
-                    parts: [{ text: aiReply }]
-                });
-            } else {
-                appendMessage('Sorry, I received an unexpected response structure from the API.', 'assistant');
-            }
+      const result = parseGeminiResponse(data);
+      if (result.error) {
+        console.error('Gemini response problem:', data);
+        appendMessage(result.error, 'assistant');
+        conversationHistory.pop();
+        return;
+      }
 
-        } catch (error) {
-            console.error('API Error:', error);
-            const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) loadingElement.remove();
-            appendMessage('Error connecting to the AI server. Please check your API key.', 'assistant');
-        }
-    });
+      appendMessage(result.text, 'assistant');
+      conversationHistory.push({ role: 'model', parts: [{ text: result.text }] });
+    } catch (err) {
+      console.error('Network error:', err);
+      removeMessage(loadingId);
+      appendMessage('Error connecting to the AI server. Check your connection.', 'assistant');
+      conversationHistory.pop();
+    } finally {
+      isBusy = false;
+    }
+  });
 }
 
-chips.forEach(chip => {
-    chip.addEventListener('click', function() {
-        if (promptInput) {
-            promptInput.value = this.textContent;
-            promptInput.focus();
-        }
-    });
+chips.forEach((chip) => {
+  chip.addEventListener('click', () => {
+    if (!promptInput) return;
+    promptInput.value = chip.textContent.trim();
+    promptInput.focus();
+  });
 });
-
-function appendMessage(text, sender) {
-    if (!chatHistory) return null;
-
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message', ...sender.split(' '));
-    
-    const messageId = 'msg-' + Date.now() + Math.random();
-    messageDiv.id = messageId;
-    
-    messageDiv.textContent = text;
-    chatHistory.appendChild(messageDiv);
-    
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-    return messageId;
-}
