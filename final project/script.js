@@ -70,7 +70,7 @@ const welcomeBanner = document.getElementById('welcome-banner');
 const appWrapper = document.getElementById('app-wrapper');
 const chips = document.querySelectorAll('.chip');
 
-const API_KEY = 'AQ.Ab8RN6LVivREzkN9pQEG_dIcTiKkgDwXn_C0U5mnnPBEIHTpBA'; 
+const API_KEY = ''; 
 let conversationHistory = [];
 
 if (promptForm && promptInput) {
