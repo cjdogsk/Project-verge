@@ -8,58 +8,157 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Intro -->
     <div class="intro-loader">
         <h1 class="name">WELCOME TO VERGE</h1>
-    </div> 
-    
-    <div class="app-wrapper" id="app-wrapper">
-        <button type="button" id="theme-toggle" class="material-symbols-rounded">
-            toggle_on
-        </button>
+    </div>
 
-        <!-- Main Content & Chat History -->
-        <div class="main-content-area">
+    <div class="app-wrapper" id="app-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="study-sidebar" id="study-sidebar">
+            <div class="sidebar-header">
+                <h3>Verge</h3>
+            </div>
+            <div class="sidebar-content">
+                <button type="button" id="btn-newchat" class="study-btn">
+                    <span class="icon">💬</span> New Chat
+                </button>
+
+                <p class="sidebar-label">Study Tools</p>
+                <button type="button" id="btn-quiz" class="study-btn">
+                    <span class="icon">📝</span> Generate Quiz
+                </button>
+                <button type="button" id="btn-flashcards" class="study-btn">
+                    <span class="icon">📇</span> Generate Flashcards
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main area -->
+        <main class="main-content-area">
+
+            <div class="top-controls">
+                <button type="button" id="sidebar-toggle" class="material-symbols-rounded icon-btn" title="Toggle sidebar">menu_open</button>
+                <button type="button" id="theme-toggle" class="material-symbols-rounded icon-btn" title="Toggle theme">toggle_off</button>
+            </div>
+
+            <!-- Chat mode -->
             <div class="welcome-banner" id="welcome-banner">
-                <h1 class="heading">How can I help you?</h1>   
+                <h1 class="heading">How can I help you?</h1>
                 <h2 class="sub-heading">Ask me something</h2>
             </div>
-            
+
             <div class="chat-history" id="chat-history"></div>
-        </div>
-        
-        <!-- Prompt Container  -->
-        <div class="prompt-container">
-            <div class="prompt-wrapper">
-                <form action="#" class="prompt-form">
-                    <input type="file" id="real-file" hidden="hidden" />
-                    <button type="button" id="custom-publish-btn" class="icon-btn material-symbols-rounded">publish</button>
-                    
-                    <input type="text" placeholder="Ask Verge" class="prompt-input" required>
-                    
-                    <div class="right-actions">
-                        <div class="model-selector-container">
-                            <span class="model-selector" id="model-selector-btn">
-                                <span id="current-model">Gemini Flash</span> 
-                                <span class="material-symbols-rounded">expand_more</span>
-                            </span>
-                            </div>
+
+            <div class="prompt-container">
+                <div class="prompt-wrapper">
+                    <form action="#" class="prompt-form">
+                        <input type="file" id="real-file" accept="image/*" hidden />
+                        <button type="button" id="custom-publish-btn" class="icon-btn material-symbols-rounded" aria-label="Attach image">publish</button>
+
+                        <div class="attachment" id="attachment" hidden>
+                            <img id="attachment-img" alt="Attached photo">
+                            <button type="button" id="attachment-remove" class="material-symbols-rounded" aria-label="Remove photo">close</button>
                         </div>
 
-                        <button type="button" class="icon-btn material-symbols-rounded">mic</button>
-                        <button type="submit" class="icon-btn submit-btn material-symbols-rounded">arrow_upward</button>
+                        <input type="text" placeholder="Ask Verge  (try: generate flashcards about biology)" class="prompt-input" required>
+
+                        <div class="right-actions">
+                            <button type="button" id="camera-btn" class="icon-btn material-symbols-rounded" aria-label="Open camera">photo_camera</button>
+                            <button type="button" id="mic-btn" class="icon-btn material-symbols-rounded" aria-label="Speak your message">mic</button>
+                            <button type="submit" class="icon-btn submit-btn material-symbols-rounded" aria-label="Send">arrow_upward</button>
+                        </div>
+                    </form>
+
+                    <div class="suggestion-chips" id="suggestion-chips">
+                        <button type="button" class="chip">Help me debug HTML</button>
+                        <button type="button" class="chip">Write a CSS grid layout</button>
+                        <button type="button" class="chip">Explain JavaScript promises</button>
                     </div>
-                </form>
-                
-                <div class="suggestion-chips" id="suggestion-chips">
-                    <button class="chip">Help me debug HTML</button>
-                    <button class="chip">Write a CSS grid layout</button>
-                    <button class="chip">Explain JavaScript promises</button>
                 </div>
+            </div>
+
+            <!-- Study mode (quiz / flashcards) -->
+            <section class="study-view" id="study-view">
+                <div class="glass-panel">
+                    <div class="study-head">
+                        <button type="button" id="study-back" class="icon-btn material-symbols-rounded" aria-label="Back to chat" title="Back to chat">arrow_back</button>
+                        <h2 id="study-title">Study</h2>
+                    </div>
+
+                    <form id="study-setup" class="study-setup">
+                        <label class="field">
+                            <span>Topic</span>
+                            <input type="text" id="study-topic" placeholder="e.g. Photosynthesis, World War II, Python loops" autocomplete="off">
+                        </label>
+
+                        <div class="field">
+                            <span>Source files <small>(optional)</small></span>
+                            <input type="file" id="study-file" multiple hidden
+                                   accept="image/*,.pdf,.txt,.md,.csv,.json,.html,.htm,.xml,.js,.ts,.py,.java,.c,.cpp,.css,.log">
+                            <button type="button" id="study-attach" class="attach-btn">
+                                <span class="material-symbols-rounded">attach_file</span>
+                                Attach files (PDF, image, text)
+                            </button>
+                            <div class="file-list" id="study-file-list" hidden></div>
+                        </div>
+
+                        <div class="field-row">
+                            <label class="field">
+                                <span>Number of items</span>
+                                <select id="study-count">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </label>
+                            <label class="field">
+                                <span>Difficulty</span>
+                                <select id="study-difficulty">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="hard">Hard</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label class="check" id="study-context-row" hidden>
+                            <input type="checkbox" id="study-use-chat" checked>
+                            <span>Use our current chat as the source</span>
+                        </label>
+
+                        <button type="submit" class="primary-btn">Generate</button>
+                    </form>
+
+                    <div class="study-loading" id="study-loading" hidden>
+                        <div class="loader"></div>
+                        <p>Generating with Gemini…</p>
+                    </div>
+
+                    <div class="study-error" id="study-error" hidden></div>
+
+                    <div class="study-output" id="study-output"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Camera  -->
+    <div class="camera-modal" id="camera-modal" hidden>
+        <div class="camera-panel">
+            <video id="camera-video" autoplay playsinline muted></video>
+            <canvas id="camera-canvas" hidden></canvas>
+            <div class="camera-actions">
+                <button type="button" id="camera-close" class="icon-btn material-symbols-rounded" aria-label="Close camera">close</button>
+                <button type="button" id="camera-capture" class="capture-btn" aria-label="Take photo"></button>
+                <button type="button" id="camera-flip" class="icon-btn material-symbols-rounded" aria-label="Switch camera">flip_camera_ios</button>
             </div>
         </div>
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
-    <script src="script.js"></script> 
+    <script src="script.js"></script>
 </body>
 </html>
