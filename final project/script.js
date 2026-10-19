@@ -1,4 +1,5 @@
 // Config & state 
+const DEFAULT_MODEL = 'gemini-2.5-flash';
 const FALLBACK_MODELS = ['gemini-2.5-flash-lite'];
 const MAX_HISTORY = 20;
 const SYSTEM_PROMPT = 'You are Verge, a helpful assistant.';
@@ -369,7 +370,7 @@ promptForm?.addEventListener('submit', async (e) => {
   if (!userText || isBusy) return;
 
   // "Generate flashcards / quiz ..." goes straight to the study page
-  const intent = detectStudyIntent(userText);
+   const intent = detectStudyIntent(userText);
   if (intent) {
     if (listening) recognition.stop();
     promptInput.value = '';
@@ -742,6 +743,7 @@ async function runStudyGeneration() {
   const hasFiles = studyFiles.length > 0;
 
   if (!useChat && !topic && !hasFiles) return showStudyError('Enter a topic or attach a file first.');
+  
   isBusy = true;
   showStudyState('loading');
 
