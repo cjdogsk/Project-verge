@@ -275,20 +275,20 @@ function parseGeminiResponse(data) {
   return { error: 'The API returned an empty response.' };
 }
 
-// Retries 503s with backoff, then falls back to the next model.
+// Retries 503s with backoff, then falls back to the next model. (Ai generated)
 async function callGemini(payload) {
   const models = [selectedModel, ...FALLBACK_MODELS];
   let res;
   for (const model of models) {
     for (let attempt = 0; attempt < 3; attempt++) {
-      res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': API_KEY },
-          body: payload
-        }
-      );
+      res = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          payload: JSON.parse(payload)
+        })
+      });
       if (res.status !== 503) return res;
       await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
     }
@@ -342,7 +342,7 @@ function detectStudyIntent(text) {
   const mode = /^flash/i.test(m[1]) ? 'flashcards' : 'quiz';
   const rest = text.slice(m[0].length);
 
-  // Topic: "... about X", "... on X", "... for X", or ": X"
+    // Topic: "... about X", "... on X", "... for X", or ": X"
   const topicMatch =
     rest.match(/\b(?:about|on|regarding|covering|for|of|from)\s+(.+)/i) ||
     rest.match(/^\s*[:\-]\s*(.+)/);
