@@ -1217,3 +1217,17 @@ body.dark-mode .prompt-form .icon-btn:hover {
 body.dark-mode .prompt-form::before {
   display: none;
 }
+.center-logo {
+  width: 220px;        
+  height: auto;       
+  display: block;
+  margin: 0 auto 1rem auto; 
+  margin-bottom: 4px;
+}
+body.dark .center-logo,
+.dark-mode .center-logo {
+  filter: invert(1) brightness(2);
+}
+h1 {
+  margin-bottom: 4px;
+}
