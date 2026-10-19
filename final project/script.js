@@ -1,7 +1,5 @@
 // Config & state 
-const API_KEY = 'YOUR_API_KEY_HERE'; // paste Gemini API key (delete key if updated)
-const DEFAULT_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODELS = ['gemini-1.5-flash'];
+const FALLBACK_MODELS = ['gemini-2.5-flash-lite'];
 const MAX_HISTORY = 20;
 const SYSTEM_PROMPT = 'You are Verge, a helpful assistant.';
 
@@ -379,11 +377,6 @@ promptForm?.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (!API_KEY) {
-    alert('Add your Gemini API key to API_KEY in script.js first.');
-    return;
-  }
-
   isBusy = true;
   if (listening) recognition.stop();
 
@@ -749,8 +742,6 @@ async function runStudyGeneration() {
   const hasFiles = studyFiles.length > 0;
 
   if (!useChat && !topic && !hasFiles) return showStudyError('Enter a topic or attach a file first.');
-  if (!API_KEY) return showStudyError('Add your Gemini API key to API_KEY in script.js first.');
-
   isBusy = true;
   showStudyState('loading');
 
