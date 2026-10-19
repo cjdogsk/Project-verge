@@ -1,7 +1,7 @@
 // Config & state 
 const API_KEY = 'YOUR_API_KEY_HERE'; // paste Gemini API key (delete key if updated)
-const DEFAULT_MODEL = 'gemini-flash-latest';
-const FALLBACK_MODELS = ['gemini-flash-lite-latest'];
+const DEFAULT_MODEL = 'gemini-2.5-flash';
+const FALLBACK_MODELS = ['gemini-1.5-flash'];
 const MAX_HISTORY = 20;
 const SYSTEM_PROMPT = 'You are Verge, a helpful assistant.';
 
