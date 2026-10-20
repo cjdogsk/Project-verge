@@ -961,3 +961,4 @@ document.addEventListener('keydown', (e) => {
     flashActions.flip();
   }
 });
+import { SpeedInsights } from "@vercel/speed-insights/next"
