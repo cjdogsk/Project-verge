@@ -7,16 +7,16 @@
   --text: #140c05;
   --placeholder: rgba(40, 24, 8, 0.5);
 
-  --orb-1: #ff8a1f;
+  --orb-1: #ddbea2;
   --orb-2: #1a1208;
-  --orb-3: #ff6a00;
+  --orb-3: #af8a70;
   --orb-4: #3a2208;
 
   --good: #1f9d63;
   --bad: #d64550;
   --flow-1: #fff3e6;
-  --flow-2: #ffd2a1;
-  --flow-3: #ffb066;
+  --flow-2: #ccc6bf;
+  --flow-3: #fcdec3;
 }
 
 body.dark-mode {

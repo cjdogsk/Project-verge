@@ -329,8 +329,6 @@ function getContents() {
   return recent;
 }
 
-// Chat submit (+ study intent)
-
 // Detects messages like "generate flashcards about biology" or "create a 10 question quiz on WW2"
 function detectStudyIntent(text) {
   const m = text.match(
