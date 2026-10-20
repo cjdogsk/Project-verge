@@ -1,6 +1,6 @@
 // Config & state 
-const DEFAULT_MODEL = 'gemini-2.5-flash';
-const FALLBACK_MODELS = ['gemini-2.5-flash-lite'];
+const DEFAULT_MODEL = 'gemini-3.8-flash';
+const FALLBACK_MODELS = ['gemini-3.8-flash-lite'];
 const MAX_HISTORY = 20;
 const SYSTEM_PROMPT = 'You are Verge, a helpful assistant.';
 
